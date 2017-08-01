@@ -119,7 +119,7 @@ To make things even more confusing, we saw how Juniper's database uses the 'L1L2
 Now, let's see what our dear friend Wireshark is telling us.
 
 
-![LSP capture](/images/capture.png)
+![LSP capture]({{ site.url }}/assets/img/L2L1-Device-L1-LSP.png)
 
 
 The image shows a type 20 PDU (L2 LSP) from an L1L2 adjacency between two devices, note how Wireshark decodes IS Type 3 
