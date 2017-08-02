@@ -22,7 +22,7 @@ twitter_username: eveliovila
 github_username:  ruissalo
 disqus:
   shortname: ruissalo
-
+google_analytics: UA-85886128-1
 # Build settings
 markdown: kramdown
 theme: minima
