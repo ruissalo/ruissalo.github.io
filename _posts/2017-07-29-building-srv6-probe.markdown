@@ -53,7 +53,7 @@ SR was released in February this year as part of the Linux kernel 4.10 version t
 [commit](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8bc66a4423dba1ffafddd52b68ddad4adff39648)
 [commit](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=46738b1317e169b281ad74690276916e24d1be6d)
 
-The implementation allows a SR enabled Linux machine to act as a segment Endpoint as well as an egress node. Both cases are defined by [draft-ietf-6man-segment-routing-header](https://tools.ietf.org/html/draft-ietf-6man-segment-routing-header-07) and the End functionality can be resumed as follows:
+The implementation allows a SR enabled Linux machine to act as a segment Endpoint as well as an egress node. Both cases are defined by [draft-ietf-6man-segment-routing-header](https://tools.ietf.org/html/draft-ietf-6man-segment-routing-header-07) and the End functionality can be summarized as follows:
 
 {% highlight C linenos %}
 IF SegmentsLeft > 0 THEN
