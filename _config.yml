@@ -20,6 +20,8 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ruissalo.github.io"
 twitter_username: eveliovila
 github_username:  ruissalo
+disqus:
+  shortname: ruissalo
 
 # Build settings
 markdown: kramdown
@@ -29,4 +31,3 @@ gems:
 exclude:
   - Gemfile
   - Gemfile.lock
-
