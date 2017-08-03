@@ -69,6 +69,40 @@ ELSE
 * DA: Packet’s destination address
 * SRH: Type 4 routing header
 
+In other words, an SRv6 enabled node receiving an IPv6 packet having a type 4 segment routing header (SRH) will check if the Segment Lefts field is > 0 (ie the node is not the actual
+destination for the packet), if SL > 0, decrement the field and update the destination address of the IPv6 packet with the segment (IPv6 address) at index SL on the 
+segments list. This is basically a swap operation between the segment list and the packet's destination address. Once this is done follow the usual forwarding rules for
+the packet on that host. Note that these actions will take place if the destination address of the received packet is locally listed as a SID (segment identifier) on that node's "My Local SID Table" and the entry has the End function attached. As a reminder, an SRv6-capable node N maintains a "My Local SID Table" containing all the local SRv6 segments explicitly instantiated at node N. The table also specifies which instruction is bound to each of the instantiated SIDs. _End_ is one of those logical funtions.
+
+
+```
+    End            Endpoint function
+                   The SRv6 instantiation of a prefix SID
+    End.X          Endpoint function with Layer-3 cross-connect
+                   The SRv6 instantiation of a Adj SID
+    End.T          Endpoint function with specific IPv6 table lookup
+    End.DX2        Endpoint with decapsulation and Layer-2 cross-connect
+                   L2VPN use-case
+    End.DX6        Endpoint with decapsulation and IPv6 cross-connect
+                   IPv6 L3VPN use (equivalent of a per-CE VPN label)
+    End.DX4        Endpoint with decapsulation and IPv4 cross-connect
+                   IPv4 L3VPN use (equivalent of a per-CE VPN label)
+    End.DT6        Endpoint with decapsulation and IPv6 table lookup
+                   IPv6 L3VPN use (equivalent of a per-VRF VPN label)
+    End.DT4        Endpoint with decapsulation and IPv4 table lookup
+                   IPv4 L3VPN use (equivalent of a per-VRF VPN label)
+    End.B6         Endpoint bound to an SRv6 policy
+                   SRv6 instantiation of a Binding SID
+    End.B6.Encaps  Endpoint bound to an SRv6 encapsulation Policy
+                   SRv6 instantiation of a Binding SID
+    End.BM         Endpoint bound to an SR-MPLS Policy
+                   SRv6/SR-MPLS instantiation of a Binding SID
+    End.S          Endpoint in search of a target in table T
+    End.AS         Endpoint to SR-unaware APP via static proxy
+    End.AM         Endpoint to SR-unaware APP via masquerading
+```
+Table. Not exhaustive list of well-known logical functions that can be attached to a SID in the "My Local SID Table".
+
 A Linux kernel instance can then act as any of the following:
 
 * Source node: A node originating an IPv6 packet with an SRH (Type 4 segment routing header). This extension header may be injected “inline” or by encapsulating the original packet and adding an SRH.
