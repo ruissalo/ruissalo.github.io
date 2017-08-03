@@ -369,7 +369,7 @@ reserved is 0
 
 * While we used inline mode in this post, take into account that only endhosts should use this insertion mode. Encapsulation should otherwise be the prefered method when packets enter a SR domain.
 
-* Nothing prevents you from simultaneously installing SRv6 static routes and having your application use different SRH values. You 
+* Nothing prevents you from simultaneously installing SRv6 static routes (eg using iproute2) and having your application use different SRH values via the IPv6 socket API. You 
 must enforce consistency between the system config and your applications.
 
 * In general SPRING terminology a segment may carry topological meaning but it also may indicate a logical function provided by the host or the network (aka SRv6 Network Programming). This posts dealt exclusively with the Endpoint function. You can read more about SRv6 network programming functions in [draft-filsfils-spring-srv6-network-programming](https://tools.ietf.org/html/draft-filsfils-spring-srv6-network-programming-01)
