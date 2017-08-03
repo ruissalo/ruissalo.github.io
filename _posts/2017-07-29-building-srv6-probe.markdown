@@ -69,8 +69,9 @@ ELSE
 * DA: Packet’s destination address
 * SRH: Type 4 routing header
 
-In other words, an SRv6 enabled node receiving an IPv6 packet having a type 4 segment routing header (SRH) will check if the Segment Lefts field is > 0 (ie the node is not the actual
-destination for the packet), if SL > 0, decrement the field and update the destination address of the IPv6 packet with the segment (IPv6 address) at index SL on the 
+SL and the Segment List array are members of the segment routing extension header (SRH4).
+
+In other words, an SRv6 enabled node receiving an IPv6 packet having a type 4 segment routing header (SRH) will check if the Segment Lefts field is > 0 (ie the node is not the packet's final destination), if SL > 0, decrement the field and update the destination address of the IPv6 packet with the segment (IPv6 address) at index SL on the 
 segments list. This is basically a swap operation between the segment list and the packet's destination address. Once this is done follow the usual forwarding rules for
 the packet on that host. Note that these actions will take place if the destination address of the received packet is locally listed as a SID (segment identifier) on that node's "My Local SID Table" and the entry has the End function attached. As a reminder, an SRv6-capable node N maintains a "My Local SID Table" containing all the local SRv6 segments explicitly instantiated at node N. The table also specifies which instruction is bound to each of the instantiated SIDs. _End_ is one of those logical funtions.
 
@@ -109,7 +110,7 @@ A Linux kernel instance can then act as any of the following:
 * Transit node: Basically any node not inspecting a type 4 SRH (eg the node it’s not in the packet’s destination address DA)
 * Endpoint node: A node receiving an IPv6 packet whose DA exists in the node’s local segment identifiers (SID) table.
 
-According to [draft-filsfils-spring-srv6-network-programming](https://tools.ietf.org/html/draft-filsfils-spring-srv6-network-programming-01), an SRv6 node should maintain a local SID (segment identifier) table containing all the local SRv6 segments explicitly instantiated at node N; but the table isn't necessarily populated by default with all the IPv6 interface addresses. By default, according to the kernel [documentation](https://github.com/torvalds/linux/blob/8fa3b6f9392bf6d90cb7b908e07bd90166639f0a/Documentation/networking/seg6-sysctl.txt), SRv6 processing is disabled on every interface and must be explicitly enabled via /proc/sys/net/conf/\<iface\>/seg6_enabled. If a packet containing a SRH is received on a seg6-disabled interface, it's discarded. This validation is enforced by [ipv6_srh_rcv](https://github.com/torvalds/linux/blob/bc78d646e708dabd1744ca98744dea316f459497/net/ipv6/exthdrs.c#L323), in particular in these few lines:
+As previously mentioned, an SRv6-capable node should maintain a local SID (segment identifier) table containing all the local SRv6 segments explicitly instantiated at node N; but the table isn't necessarily populated by default with all the IPv6 interface addresses according the SRv6 draft. The approach taken by Linux is that, by default, according to the kernel [documentation](https://github.com/torvalds/linux/blob/8fa3b6f9392bf6d90cb7b908e07bd90166639f0a/Documentation/networking/seg6-sysctl.txt), SRv6 processing is disabled on every interface and must be explicitly enabled via /proc/sys/net/conf/\<iface\>/seg6_enabled. If a packet containing a SRH is received on a seg6-disabled interface, it's discarded. This validation is enforced by [ipv6_srh_rcv](https://github.com/torvalds/linux/blob/bc78d646e708dabd1744ca98744dea316f459497/net/ipv6/exthdrs.c#L323), in particular in these few lines:
 
 {% highlight C linenos %}
 	accept_seg6 = net->ipv6.devconf_all->seg6_enabled;
@@ -121,7 +122,7 @@ According to [draft-filsfils-spring-srv6-network-programming](https://tools.ietf
 		return -1;
 {% endhighlight %}
 
- Other implementations like [FD.IO](https://docs.fd.io/vpp/17.04/sr_doc.html) create a SID local table and assign the desired function to each segment.
+Other implementations like [FD.IO](https://docs.fd.io/vpp/17.04/sr_doc.html) require explicit segment/logical_function instantiation in the "My Local SID Table".
 
 There are basically two ways to inject, inspect or remove a type 4 SRH in the current kernel implementation: using the well known iproute2 interface or through the IPv6 socket API. The former is implemented via [lightweight tunnels](https://lwn.net/Articles/650778/): this feature allows user space tools like iproute2 to customize the [input](https://github.com/torvalds/linux/blob/5518b69b76680a4f2df96b1deca260059db0c2de/net/ipv6/seg6_iptunnel.c#L234) and [output](https://github.com/torvalds/linux/blob/5518b69b76680a4f2df96b1deca260059db0c2de/net/ipv6/seg6_iptunnel.c#L275) function pointers that every route has in the linux kernel. Using [rtnetlink](http://man7.org/linux/man-pages/man7/rtnetlink.7.html) sockets, iproute2 passes the user specified SRH to the kernel so that after header [validation](https://github.com/torvalds/linux/blob/5518b69b76680a4f2df96b1deca260059db0c2de/net/ipv6/seg6.c#L32) the new input/ouput pointer functions can be installed. These functions do the heavy lifting of adding/removing/modifying the SR extension header. This is the same mechanism used by the MPLS and VXLAN [implementations](https://kernelnewbies.org/Linux_4.3#head-c5506dbfb2f3c214e689a53e1430873fe3ace52f) in the kernel. 
 
