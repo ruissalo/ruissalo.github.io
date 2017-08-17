@@ -110,7 +110,7 @@ A Linux kernel instance can then act as any of the following:
 * Transit node: Basically any node not inspecting a type 4 SRH (eg the node it’s not in the packet’s destination address DA)
 * Endpoint node: A node receiving an IPv6 packet whose DA exists in the node’s local segment identifiers (SID) table.
 
-As previously mentioned, an SRv6-capable node should maintain a local SID (segment identifier) table containing all the local SRv6 segments explicitly instantiated at node N; but the table isn't necessarily populated by default with all the IPv6 interface addresses according the SRv6 draft. The approach taken by Linux is that, by default, according to the kernel [documentation](https://github.com/torvalds/linux/blob/8fa3b6f9392bf6d90cb7b908e07bd90166639f0a/Documentation/networking/seg6-sysctl.txt), SRv6 processing is disabled on every interface and must be explicitly enabled via /proc/sys/net/conf/\<iface\>/seg6_enabled. If a packet containing a SRH is received on a seg6-disabled interface, it's discarded. This validation is enforced by [ipv6_srh_rcv](https://github.com/torvalds/linux/blob/bc78d646e708dabd1744ca98744dea316f459497/net/ipv6/exthdrs.c#L323), in particular in these few lines:
+As previously mentioned, an SRv6-capable node should maintain a local SID (segment identifier) table containing all the local SRv6 segments explicitly instantiated at node N; but the table isn't necessarily populated by default with all the IPv6 interface addresses according the SRv6 draft. The approach taken by Linux is that, by default, according to the kernel [documentation](https://github.com/torvalds/linux/blob/8fa3b6f9392bf6d90cb7b908e07bd90166639f0a/Documentation/networking/seg6-sysctl.txt), SRv6 processing is disabled on every interface and must be explicitly enabled via /proc/sys/net/ipv6/conf/\<iface\>/seg6_enabled. If a packet containing a SRH is received on a seg6-disabled interface, it's discarded. This validation is enforced by [ipv6_srh_rcv](https://github.com/torvalds/linux/blob/bc78d646e708dabd1744ca98744dea316f459497/net/ipv6/exthdrs.c#L323), in particular in these few lines:
 
 {% highlight C linenos %}
 	accept_seg6 = net->ipv6.devconf_all->seg6_enabled;
@@ -139,11 +139,9 @@ After issuing the command above, the routing table now shows our new SRv6 route.
 
 ```
 sr6@sr6-vm:~$ ip -6 route list
-2001:db8::/64 dev eth1  proto kernel  metric 256 
-2001:db9::/64 dev eth1  metric 1024 
-fe80::/64 dev eth1  proto kernel  metric 256 
-ff00::/8 dev eth0  metric 256 
-ff00::/8 dev eth1  metric 256 
+(...)
+2001:db9::/64  encap seg6 mode encap segs 1 [ 2001:db8::2 ] dev eth1 metric 1024 pref medium
+(...)
 ```
 
 
